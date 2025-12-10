@@ -11,7 +11,7 @@ public class Invitation
     
     public string Email { get; set; }
     
-    public int? InvatedUserId { get; set; }
+    public int? InvitedUserId { get; set; }
     public User? InvatedUser { get; set; }
     
     public int SenderId { get; set; }
