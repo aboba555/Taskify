@@ -53,4 +53,49 @@ public class InvitationsController(IInvitationService invitationService) : Contr
             return BadRequest();
         }
     }
+
+    [HttpPost("{id}/accept")]
+    public async Task<IActionResult> AcceptInvitation([FromRoute] int id)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            int parsedUserId = int.Parse(userId);
+            
+            await invitationService.AcceptInvite(id, parsedUserId);
+            
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
+        }
+    }
+    
+    
+    [HttpPost("{id}/reject")]
+    public async Task<IActionResult> RejectInvitation([FromRoute] int id)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            int parsedUserId = int.Parse(userId);
+            
+            await invitationService.DeclineInvite(id, parsedUserId);
+            
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
+        }
+    }
 }

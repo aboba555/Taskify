@@ -1,6 +1,7 @@
 using BusinessLogic.DTO;
 using DataAccess;
 using DataAccess.Enums;
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogic.Services.Invitation;
@@ -19,7 +20,7 @@ public class InvitationService(AppDbContext appDbContext) : IInvitationService
         
         var sender = await appDbContext.TeamUsers.FirstOrDefaultAsync(x => x.UserId == senderId && x.TeamId == sendInviteDto.TeamId);
 
-        if (sender.Role != Role.Leader || sender == null)
+        if (sender == null || sender.Role != Role.Leader )
         {
             throw new Exception("You are not the leader of this team");
         }
@@ -79,5 +80,45 @@ public class InvitationService(AppDbContext appDbContext) : IInvitationService
                 SendedAt = i.Created
             })
             .ToListAsync();
+    }
+
+    public async Task DeclineInvite(int inviteId, int userId)
+    {
+        var invite = await appDbContext.Invitations.FirstOrDefaultAsync(i=> i.Id == inviteId);
+        if (invite == null || invite.InvitedUserId != userId)
+        {
+            throw new Exception("Invitation not found");
+        }
+
+        invite.Status = Status.Rejected;
+        appDbContext.Invitations.Update(invite);
+        await appDbContext.SaveChangesAsync();
+    }
+
+    public async Task AcceptInvite(int inviteId, int userId)
+    {
+        var invite = await appDbContext.Invitations.FirstOrDefaultAsync(i=> i.Id == inviteId);
+        if (invite == null || invite.InvitedUserId != userId)
+        {
+            throw new Exception("Invitation not found");
+        }
+
+        if (invite.Status != Status.Pending)
+        {
+            throw new Exception("Invitation is inactive");
+        }
+
+        var newTeamUser = new TeamUser
+        {
+            TeamId = invite.TeamId,
+            UserId = userId,
+            Role = Role.Member
+        };
+        await appDbContext.TeamUsers.AddAsync(newTeamUser);
+        
+        invite.Status = Status.Accepted;
+        appDbContext.Invitations.Update(invite);
+        
+        await appDbContext.SaveChangesAsync();
     }
 }
