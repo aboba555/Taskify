@@ -18,6 +18,7 @@ public class TaskItem
     public ItemStatus Status { get; set; }
     public Priority Priority { get; set; }
     
+    public DateTime? DueDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     
@@ -25,5 +26,4 @@ public class TaskItem
     public User CreatedByUser { get; set; }
     
     public List<Comment> Comments { get; set; } = new List<Comment>();
-    
 }
