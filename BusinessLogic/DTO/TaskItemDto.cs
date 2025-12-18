@@ -9,6 +9,7 @@ public class TaskItemDto
     public string TeamName { get; set; }
     public string AuthorName { get; set; }
     public string? AssigneeName { get; set; }
+    public int? AssignedToUserId { get; set; }
     
     public string Status { get; set; }
     public string Priority { get; set; }

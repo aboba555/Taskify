@@ -53,4 +53,22 @@ public class TeamController(ITeamService teamService) : ControllerBase
             return BadRequest(e.Message);
         }
     }
+    
+    [HttpGet("{teamId:int}/members")]
+    public async Task<IActionResult> GetTeamMembers([FromRoute] int teamId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized();
+
+        try
+        {
+            var parsedUserId = int.Parse(userId);
+            var members = await teamService.GetTeamsMembers(teamId, parsedUserId);
+            return Ok(members);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
 }

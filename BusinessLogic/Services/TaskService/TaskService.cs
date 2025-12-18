@@ -54,8 +54,20 @@ public class TaskService(AppDbContext dbContext) : ITaskService
 
         bool hasAccess = await dbContext.TeamUsers
             .AnyAsync(x => x.UserId == userId && x.TeamId == task.TeamId);
-            
-        if (!hasAccess) throw new Exception("Access denied");
+
+        if (!hasAccess)
+        {
+            throw new Exception("Access denied");
+        }
+        
+        if (updateTaskDto.AssignedToUserId != null)
+        {
+            bool validateAssigned = await dbContext.TeamUsers.AnyAsync(x =>
+                x.TeamId == task.TeamId && x.UserId == updateTaskDto.AssignedToUserId);
+
+            if (!validateAssigned)
+                throw new Exception("Assigned user is not part of this team");
+        }
         
         
         task.Status = updateTaskDto.Status;
@@ -114,6 +126,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
                 AssigneeName = t.AssignedToUser != null
                     ? $"{t.AssignedToUser.FirstName} {t.AssignedToUser.LastName}"
                     : "Unassigned",
+                AssignedToUserId = t.AssignedToUserId,
                 Status = t.Status.ToString(),
                 Priority = t.Priority.ToString(),
                 CreatedAt = t.CreatedAt,
@@ -137,6 +150,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
                 AssigneeName = t.AssignedToUser != null 
                     ? t.AssignedToUser.FirstName + " " + t.AssignedToUser.LastName 
                     : "Unknown",
+                AssignedToUserId = t.AssignedToUserId,
                 Status = t.Status.ToString(),
                 Priority = t.Priority.ToString(),
                 CreatedAt = t.CreatedAt,

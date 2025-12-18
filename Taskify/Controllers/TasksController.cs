@@ -20,8 +20,12 @@ public class TasksController(ITaskService taskService) : ControllerBase
             {
                 return Unauthorized();
             }
-            
             var parsedUserId = int.Parse(userId);
+            
+            if (task.AssignedToUserId == null)
+            {
+                task.AssignedToUserId = parsedUserId;
+            }
             
             await taskService.CreateTask(task, parsedUserId);
             return Ok();

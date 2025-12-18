@@ -46,4 +46,31 @@ public class TeamService(AppDbContext context) : ITeamService
          
         return teams;
     }
+
+    public async Task<List<TeamMemberDto>> GetTeamsMembers(int teamId, int requesterUserId)
+    {
+        bool canAccess = await context.TeamUsers
+            .AsNoTracking()
+            .AnyAsync(x => x.TeamId == teamId && x.UserId == requesterUserId);
+
+        if (!canAccess)
+        {
+            throw new ("You are not part of this team");
+        }
+
+        var teamMembers = await context.TeamUsers
+            .AsNoTracking()
+            .Where(x => x.TeamId == teamId)
+            .Include(x => x.Team)
+            .Select(x => new TeamMemberDto
+            {
+                UserId = x.UserId,
+                Email = x.User.Email,
+                FirstName = x.User.FirstName,
+                LastName = x.User.LastName,
+                Role = x.Role.ToString()
+            })
+            .ToListAsync();
+        return teamMembers;
+    }
 }
