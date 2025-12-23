@@ -5,6 +5,7 @@ namespace DataAccess.Models;
 public class TaskItem
 {
     public int Id { get; set; }
+    public Label Label { get; set; }
     
     public string Title { get; set; }
     public string? Description { get; set; }

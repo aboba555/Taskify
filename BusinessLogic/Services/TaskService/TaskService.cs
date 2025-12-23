@@ -29,6 +29,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
 
         var createdTask = new TaskItem()
         {
+            Label = createTaskDto.Label,
             Title = createTaskDto.Title,
             Description = createTaskDto.Description,
             TeamId = createTaskDto.TeamId,
@@ -79,6 +80,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
             task.Description = updateTaskDto.Description;
         }
         
+        task.Label = updateTaskDto.Label;
         task.Status = updateTaskDto.Status;
         task.AssignedToUserId = updateTaskDto.AssignedToUserId;
         task.UpdatedAt = DateTime.UtcNow; 
@@ -128,6 +130,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
             .Select(t => new TaskItemDto
             {
                 Id = t.Id,
+                Label = t.Label,
                 Title = t.Title,
                 Description = t.Description != null ? t.Description : string.Empty,
                 TeamName = t.Team.Name,
@@ -152,6 +155,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
             .Select(t => new TaskItemDto
             {
                 Id = t.Id,
+                Label = t.Label,
                 Title = t.Title,
                 Description = t.Description != null ? t.Description : string.Empty,
                 TeamName = t.Team.Name,

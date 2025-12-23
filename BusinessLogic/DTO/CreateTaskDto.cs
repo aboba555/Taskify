@@ -4,6 +4,7 @@ namespace BusinessLogic.DTO;
 
 public class CreateTaskDto
 {
+    public Label Label { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public int TeamId { get; set; }

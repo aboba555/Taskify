@@ -4,6 +4,7 @@ namespace BusinessLogic.DTO;
 
 public class UpdateTaskDto
 {
+    public Label Label { get; set; }
     public int TaskId { get; set; }
     public int TeamId { get; set; }
     public ItemStatus Status { get; set; }
