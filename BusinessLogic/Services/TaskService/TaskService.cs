@@ -69,6 +69,15 @@ public class TaskService(AppDbContext dbContext) : ITaskService
                 throw new Exception("Assigned user is not part of this team");
         }
         
+        if (!string.IsNullOrEmpty(updateTaskDto.Title))
+        {
+            task.Title = updateTaskDto.Title;
+        }
+
+        if (!string.IsNullOrEmpty(updateTaskDto.Description))
+        {
+            task.Description = updateTaskDto.Description;
+        }
         
         task.Status = updateTaskDto.Status;
         task.AssignedToUserId = updateTaskDto.AssignedToUserId;
@@ -155,6 +164,36 @@ public class TaskService(AppDbContext dbContext) : ITaskService
                 Priority = t.Priority.ToString(),
                 CreatedAt = t.CreatedAt,
                 DueDate = t.DueDate
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<CommentDto>> GetCommentsByTaskId(int taskId, int userId)
+    {
+        var task = await dbContext.TaskItems.FindAsync(taskId);
+        if (task == null)
+        {
+            throw new Exception("Task not found");
+        }
+        
+        bool hasAccess = await dbContext.TeamUsers
+            .AnyAsync(x => x.UserId == userId && x.TeamId == task.TeamId);
+    
+        if (!hasAccess)
+        {
+            throw new Exception("Access denied");
+        }
+    
+        return await dbContext.Comments
+            .Where(x => x.TaskId == taskId)
+            .OrderBy(x => x.CreatedAt)
+            .Select(x => new CommentDto
+            {
+                Id = x.Id,
+                TaskId = taskId,
+                CreatedByUser = $"{x.CreatedByUser.FirstName} {x.CreatedByUser.LastName}",
+                Text = x.Text,
+                CreatedAt = x.CreatedAt
             })
             .ToListAsync();
     }

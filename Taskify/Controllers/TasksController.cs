@@ -113,4 +113,25 @@ public class TasksController(ITaskService taskService) : ControllerBase
             return BadRequest(new { error = e.Message });
         }
     }
+
+    [HttpGet("comment/{taskId}")]
+    public async Task<IActionResult> GetComment([FromRoute] int taskId)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var parsedUserId = int.Parse(userId);
+            var comments = await taskService.GetCommentsByTaskId(taskId, parsedUserId);
+            return Ok(comments);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { error = e.Message });
+        }
+    }
+    
 }

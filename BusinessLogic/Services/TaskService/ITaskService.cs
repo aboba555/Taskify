@@ -9,4 +9,5 @@ public interface ITaskService
     Task AddComment(CreateCommentDto createCommentDto, int userId);
     Task<List<TaskItemDto>> GetTeamTasks(int teamId, int userId);
     Task<List<TaskItemDto>> GetMyTask(int userId);
+    Task<List<CommentDto>> GetCommentsByTaskId(int taskId, int userId);
 }

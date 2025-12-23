@@ -8,4 +8,6 @@ public class UpdateTaskDto
     public int TeamId { get; set; }
     public ItemStatus Status { get; set; }
     public int? AssignedToUserId { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
 }

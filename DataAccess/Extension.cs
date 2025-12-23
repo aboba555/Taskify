@@ -13,12 +13,12 @@ public static class Extension
         
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseSqlServer(connectionString);
+            options.UseNpgsql(connectionString);
         });
         
         services.AddFluentMigratorCore()
             .ConfigureRunner(rb => rb
-                .AddSqlServer()
+                .AddPostgres()
                 .WithGlobalConnectionString(connectionString)
                 .ScanIn(typeof(Extension).Assembly).For.Migrations())
             .AddLogging(lb => lb.AddFluentMigratorConsole());
