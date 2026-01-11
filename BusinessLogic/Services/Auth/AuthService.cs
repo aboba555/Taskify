@@ -4,6 +4,7 @@ using System.Text;
 using BusinessLogic.DTO;
 using DataAccess;
 using DataAccess.Models;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -45,6 +46,10 @@ public class AuthService(AppDbContext appDbContext, IConfiguration configuration
             throw new Exception("Invalid credentials");
         }
 
+        if (user.Password == null)
+        {
+            throw new Exception("You should login differently");
+        }
         bool isValidPassword = BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.Password);
 
         if (!isValidPassword)
@@ -54,6 +59,42 @@ public class AuthService(AppDbContext appDbContext, IConfiguration configuration
         
         var token = GenerateJwtToken(user);
         return token;
+    }
+
+    public async Task<string> GoogleLogin(GoogleUserLoginDto googleUserLoginDto)
+    {
+        var settings = new GoogleJsonWebSignature.ValidationSettings
+        {
+            Audience = new[] {configuration["Google:ClientId"]}
+        };
+
+        var payload = await GoogleJsonWebSignature.ValidateAsync(googleUserLoginDto.GoogleToken, settings);
+        if (payload == null)
+        {
+            throw new Exception("Invalid credentials");
+        }
+
+        var user = await appDbContext.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
+        if (user != null)
+        {
+            if (user.GoogleId == payload.Subject)
+            {
+                return GenerateJwtToken(user);
+            }
+            throw new Exception("Email already exists");
+        }
+
+        var creatingUser = new User
+        {
+            FirstName = payload.GivenName,
+            LastName = payload.FamilyName,
+            Email = payload.Email,
+            Password = null,
+            GoogleId = payload.Subject
+        };
+        await appDbContext.Users.AddAsync(creatingUser);
+        await appDbContext.SaveChangesAsync();
+        return GenerateJwtToken(creatingUser);
     }
 
     private string GenerateJwtToken(User user)

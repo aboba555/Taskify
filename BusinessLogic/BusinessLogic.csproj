@@ -12,6 +12,7 @@
       <PackageReference Include="FluentMigrator.Extensions.Postgres" Version="7.2.0" />
       <PackageReference Include="FluentMigrator.Runner" Version="7.2.0" />
       <PackageReference Include="FluentMigrator.Runner.SqlServer" Version="7.2.0" />
+      <PackageReference Include="Google.Apis.Auth" Version="1.73.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
         <PrivateAssets>all</PrivateAssets>

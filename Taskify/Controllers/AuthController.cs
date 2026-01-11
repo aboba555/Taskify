@@ -37,6 +37,20 @@ public class AuthController(IAuthService authService) : Controller
             return Unauthorized(new {error = e.Message});
         }
     }
+
+    [HttpPost("google-auth")]
+    public async Task<IActionResult> GoogleAuth([FromBody]GoogleUserLoginDto googleUserLoginDto)
+    {
+        try
+        {
+            var token = await authService.GoogleLogin(googleUserLoginDto);
+            return Ok(new { message = token });
+        }
+        catch (Exception e)
+        {
+            return Unauthorized(new {error = e.Message});
+        }
+    }
     
     [Authorize]
     [HttpGet("me")]
