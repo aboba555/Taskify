@@ -12,14 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Check .NET version
-        run: dotnet --version
-      
       - name: Restore dependencies
-        run: dotnet restore
+        run: ~/.dotnet/dotnet restore
       
       - name: Publish
-        run: dotnet publish Taskify/Taskify.csproj -c Release -o ./publish
+        run: ~/.dotnet/dotnet publish Taskify/Taskify.csproj -c Release -o ./publish
       
       - name: Stop service
         run: sudo systemctl stop taskify
@@ -28,6 +25,7 @@ jobs:
         run: |
           rm -rf ~/backend/*
           cp -r ./publish/* ~/backend/
+          cp ~/config/appsettings.Production.json ~/backend/appsettings.json
       
       - name: Start service
         run: sudo systemctl start taskify
