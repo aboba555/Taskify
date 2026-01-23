@@ -1,0 +1,40 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Publish
+        run: dotnet publish Taskify/Taskify.csproj -c Release -o ./publish
+      
+      - name: Stop service
+        run: sudo systemctl stop taskify
+      
+      - name: Deploy files
+        run: |
+          rm -rf ~/backend/*
+          cp -r ./publish/* ~/backend/
+      
+      - name: Start service
+        run: sudo systemctl start taskify
+      
+      - name: Verify deployment
+        run: |
+          sleep 3
+          systemctl is-active taskify && echo "✅ Deployed successfully!"
