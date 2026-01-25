@@ -133,5 +133,25 @@ public class TasksController(ITaskService taskService) : ControllerBase
             return BadRequest(new { error = e.Message });
         }
     }
+
+    [HttpDelete("delete/{taskId}")]
+    public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var parsedUserId = int.Parse(userId);
+            await taskService.DeleteTask(taskId, parsedUserId);
+            return Ok(new { success = true });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { error = e.Message });
+        }
+    }
     
 }

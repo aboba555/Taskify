@@ -10,4 +10,5 @@ public interface ITaskService
     Task<List<TaskItemDto>> GetTeamTasks(int teamId, int userId);
     Task<List<TaskItemDto>> GetMyTask(int userId);
     Task<List<CommentDto>> GetCommentsByTaskId(int taskId, int userId);
+    Task DeleteTask(int taskId, int userId);
 }

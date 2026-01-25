@@ -201,4 +201,21 @@ public class TaskService(AppDbContext dbContext) : ITaskService
             })
             .ToListAsync();
     }
+
+    public async Task DeleteTask(int taskId, int userId)
+    {
+        var task = await dbContext.TaskItems.FindAsync(taskId);
+        if (task == null)
+        {
+            throw new Exception("Task not found");
+        }
+        
+        bool hasAcces = await dbContext.TeamUsers.AnyAsync(x=> x.UserId == userId && x.TeamId == task.TeamId);
+        if (!hasAcces)
+        {
+            throw new Exception("Access denied");
+        }
+        dbContext.TaskItems.Remove(task);
+        await dbContext.SaveChangesAsync();
+    }
 }
