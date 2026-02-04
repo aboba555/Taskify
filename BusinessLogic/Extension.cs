@@ -2,6 +2,7 @@ using BusinessLogic.Services.Auth;
 using BusinessLogic.Services.Invitation;
 using BusinessLogic.Services.TaskService;
 using BusinessLogic.Services.Team;
+using BusinessLogic.Services.TelegramService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ public static class Extension
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IInvitationService, InvitationService>();
         services.AddScoped<ITaskService, TaskService>();
+        services.AddScoped<ITelegramService, TelegramService>();
         
         return services;
     }
