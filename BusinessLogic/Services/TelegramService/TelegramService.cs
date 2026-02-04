@@ -30,7 +30,7 @@ public class TelegramService(AppDbContext appDbContext, IConfiguration configura
         await appDbContext.SaveChangesAsync();
         
         var botUsername = configuration["Telegram:BotUsername"];
-        return $"https://t.me/{botUsername}?start={generatedCode}";
+        return $"tg://resolve?domain={botUsername}&start={generatedCode}";
     }
 
     public async Task ProcessWebhook(Update update)
