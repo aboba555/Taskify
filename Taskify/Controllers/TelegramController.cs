@@ -52,7 +52,7 @@ public class TelegramController(ITelegramService telegramService) : ControllerBa
             }
 
             var parsedUserId = int.Parse(userId);
-            var result = telegramService.IsConnected(parsedUserId);
+            var result = await telegramService.IsConnected(parsedUserId);
             return Ok(new { result });
         }
         catch (Exception e)
