@@ -1,7 +1,7 @@
 using FluentMigrator;
 
 namespace DataAccess.Migrations;
-[Migration(3)]
+[Migration(5)]
 public class AddingTelegramChatIdToUser : Migration{
     public override void Up()
     {
