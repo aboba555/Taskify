@@ -10,6 +10,7 @@ public class User
     public string Email { get; set; }
     public string? Password { get; set; }
     public string? GoogleId { get; set; }
+    public string? TelegramChatId { get; set; }
     
     public List<TeamUser> TeamUsers { get; set; } = new List<TeamUser>();
 }
