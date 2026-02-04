@@ -1,4 +1,5 @@
 using BusinessLogic.DTO;
+using BusinessLogic.Services.TelegramService;
 using DataAccess;
 using DataAccess.Enums;
 using DataAccess.Models;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogic.Services.TaskService;
 
-public class TaskService(AppDbContext dbContext) : ITaskService
+public class TaskService(AppDbContext dbContext, ITelegramService telegramService) : ITaskService
 {
     public async Task CreateTask(CreateTaskDto createTaskDto, int userId)
     {
@@ -43,6 +44,18 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         
         await dbContext.TaskItems.AddAsync(createdTask);
         await dbContext.SaveChangesAsync();
+        
+        if (createTaskDto.AssignedToUserId != null && createTaskDto.AssignedToUserId != userId)
+        {
+            var assigner = await dbContext.Users.FindAsync(userId);
+            var message = $"📋 *New task assigned to you!*\n\n" +
+                          $"📌 {createdTask.Title}\n" +
+                          $"👤 From: {assigner.FirstName} {assigner.LastName}\n" +
+                          $"📅 Due: {createTaskDto.DueDate?.ToString("dd MMM yyyy") ?? "No deadline"}\n" +
+                          $"🔥 Priority: {createTaskDto.Priority}";
+        
+            await telegramService.SendMessage(createTaskDto.AssignedToUserId.Value, message);
+        }
     }
 
     public async Task UpdateTask(UpdateTaskDto updateTaskDto, int userId)
@@ -60,6 +73,8 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         {
             throw new Exception("Access denied");
         }
+        
+        var oldAssigneeId = task.AssignedToUserId;
         
         if (updateTaskDto.AssignedToUserId != null)
         {
@@ -86,6 +101,18 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         task.UpdatedAt = DateTime.UtcNow; 
         
         await dbContext.SaveChangesAsync();
+        
+        if (updateTaskDto.AssignedToUserId != null && 
+            updateTaskDto.AssignedToUserId != oldAssigneeId &&
+            updateTaskDto.AssignedToUserId != userId)
+        {
+            var assigner = await dbContext.Users.FindAsync(userId);
+            var message = $"📋 *Task reassigned to you!*\n\n" +
+                          $"📌 {task.Title}\n" +
+                          $"👤 From: {assigner.FirstName} {assigner.LastName}";
+        
+            await telegramService.SendMessage(updateTaskDto.AssignedToUserId.Value, message);
+        }
     }
 
     public async Task AddComment(CreateCommentDto createCommentDto, int userId)

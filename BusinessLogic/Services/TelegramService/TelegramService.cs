@@ -2,11 +2,12 @@ using DataAccess;
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace BusinessLogic.Services.TelegramService;
 
-public class TelegramService(AppDbContext appDbContext, IConfiguration configuration) : ITelegramService
+public class TelegramService(AppDbContext appDbContext, IConfiguration configuration, TelegramBotClient telegramBotClient) : ITelegramService
 {
     public async Task<string> GenerateTelegramLink(int userId)
     {
@@ -89,6 +90,29 @@ public class TelegramService(AppDbContext appDbContext, IConfiguration configura
         }
         user.TelegramChatId = null;
         await appDbContext.SaveChangesAsync();
+    }
+
+    public async Task SendMessage(int userId, string message)
+    {
+        var user = await appDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user?.TelegramChatId == null)
+        {
+            return;
+        }
+        
+        try
+        {
+            await telegramBotClient.SendMessage(
+                chatId: user.TelegramChatId,
+                text: message,
+                parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Telegram send error: {ex.Message}");
+        }
+        
     }
 
     private string GenerateCode()

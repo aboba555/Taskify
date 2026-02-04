@@ -8,4 +8,5 @@ public interface ITelegramService
     Task ProcessWebhook(Update update);
     Task<bool> IsConnected(int userId);
     Task Disconnect(int userId);
+    Task SendMessage(int userId, string message);
 }
