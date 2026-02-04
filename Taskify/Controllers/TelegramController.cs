@@ -6,7 +6,7 @@ using Telegram.Bot.Types;
 
 namespace Taskify.Controllers;
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/telegram")]
 public class TelegramController(ITelegramService telegramService) : ControllerBase
 {
     [Authorize]
