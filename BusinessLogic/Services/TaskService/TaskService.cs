@@ -63,7 +63,7 @@ public class TaskService(AppDbContext dbContext, ITelegramService telegramServic
         var task = await dbContext.TaskItems.FindAsync(updateTaskDto.TaskId);
         if (task == null)
         {
-            throw new Exception("Task not found");
+            throw new Exception(message: "Task not found");
         }
 
         bool hasAccess = await dbContext.TeamUsers
