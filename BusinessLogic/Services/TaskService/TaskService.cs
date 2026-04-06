@@ -1,4 +1,6 @@
+using System.Threading.Channels;
 using BusinessLogic.DTO;
+using BusinessLogic.Services.NotificationService;
 using BusinessLogic.Services.TelegramService;
 using DataAccess;
 using DataAccess.Enums;
@@ -7,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogic.Services.TaskService;
 
-public class TaskService(AppDbContext dbContext, ITelegramService telegramService) : ITaskService
+public class TaskService(AppDbContext dbContext, ITelegramService telegramService, Channel<Notification> channelNotification) : ITaskService
 {
     public async Task CreateTask(CreateTaskDto createTaskDto, int userId)
     {
@@ -138,6 +140,32 @@ public class TaskService(AppDbContext dbContext, ITelegramService telegramServic
             CreatedByUserId = userId,
             CreatedAt = DateTime.UtcNow
         };
+
+        var validMentions = await dbContext.TeamUsers
+            .Where(t => t.TeamId == task.TeamId 
+                        && createCommentDto.MentionedUserIds.Contains(t.UserId) 
+                        && t.UserId != userId)
+            .Select(t => t.UserId)
+            .ToListAsync();
+        
+        var author = await dbContext.Users.FindAsync(userId);
+
+        foreach (var mentionedUserId in validMentions)
+        {
+            var notification = new Notification
+            {
+                FromUserId = userId,
+                ToUserId = mentionedUserId,
+                TaskId = task.Id,
+                Text = $"{author.FirstName} mentioned you in task: {task.Title}",
+                Type = NotificationType.MENTION,
+                IsRead = false,
+                SentAt = DateTime.UtcNow
+            };
+
+            await channelNotification.Writer.WriteAsync(notification);
+        }
+
 
         await dbContext.Comments.AddAsync(newComment);
         await dbContext.SaveChangesAsync();

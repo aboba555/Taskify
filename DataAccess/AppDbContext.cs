@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<TeamUser> TeamUsers => Set<TeamUser>();
     public DbSet<TelegramLinkCode> TelegramLinkCodes => Set<TelegramLinkCode>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,5 +43,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<TelegramLinkCode>()
             .HasIndex(t => t.Code)
             .IsUnique();
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.FromUser)
+            .WithMany()
+            .HasForeignKey(n => n.FromUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+            
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.ToUser)
+            .WithMany()
+            .HasForeignKey(n => n.ToUserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.TaskItem)
+            .WithMany()
+            .HasForeignKey(n => n.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

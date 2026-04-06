@@ -1,6 +1,8 @@
 using System.Text;
+using System.Threading.Channels;
 using BusinessLogic;
 using DataAccess;
+using DataAccess.Models;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +17,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddDataAccess(builder.Configuration);
 builder.Services.AddBusinessLogic();
+
+builder.Services.AddSingleton(Channel.CreateBounded<Notification>(100));
 
 builder.Services.AddAuthentication(options =>
     {
