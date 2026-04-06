@@ -8,30 +8,41 @@ namespace BusinessLogic.Services.NotificationService;
 
 public class NotificationService(ITelegramService telegramService, AppDbContext dbContext) : INotificationService
 {
-    public async Task SendNotificationAsync(int userId, string message, int taskId, NotificationType notificationType)
+    public async Task<IEnumerable<Notification>> GetAllNotificationsByUserId(int userId)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        var task = await dbContext.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
+        var notifications =  await dbContext.Notifications.Where(u => u.ToUserId == userId).ToListAsync();
+        return notifications;
+    }
 
-        if (user == null || task == null)
-            throw new Exception("User or task not found");
+    public async Task<IEnumerable<Notification>> GetAllUnReadNotificationsByUserId(int userId)
+    {
+        var notifications = await dbContext.Notifications.Where(u => u.ToUserId == userId && !u.IsRead).ToListAsync();
+        return notifications;
+    }
+
+    public async Task MarkOneAsRead(int notificationId, int userId)
+    {
+        var notification = await dbContext.Notifications.FindAsync(notificationId);
         
-        if (user.TelegramChatId != null)
+        if (notification == null)
+            throw new Exception("Notification not found");
+        
+        if (notification.ToUserId != userId)
         {
-            await telegramService.SendMessage(user.Id, message);
+            throw new ArgumentException($"This notification doesn't belong to user {userId}");
         }
-        
-        var notification = new Notification
-        {
-            ToUserId = userId,
-            TaskId = taskId,
-            Text = message,
-            Type = notificationType,
-            IsRead = false,
-            SentAt = DateTime.UtcNow
-        };
-
-        await dbContext.Notifications.AddAsync(notification);
+        notification.IsRead = true;
         await dbContext.SaveChangesAsync();
+    }
+
+    public async Task MarkAllAsRead(int userId)
+    {
+        var notification = await dbContext.Notifications.Where(u => u.ToUserId == userId && !u.IsRead).ToListAsync();
+        notification.ForEach(n => n.IsRead = true);
+        await dbContext.SaveChangesAsync();
+    }
+    public async Task<int> GetUnreadCount(int userId)
+    {
+        return await dbContext.Notifications.CountAsync(n => n.ToUserId == userId && !n.IsRead);
     }
 }
