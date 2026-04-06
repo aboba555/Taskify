@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using BusinessLogic.DTO;
 using BusinessLogic.Services.TaskService;
 using BusinessLogic.Services.TelegramService;
@@ -15,6 +16,7 @@ public class TaskServiceTests : IDisposable
     private readonly AppDbContext _context;
     private readonly Mock<ITelegramService> _telegramMock;
     private readonly TaskService _sut;
+    private readonly Channel<Notification> _channel;
     
     public TaskServiceTests()
     {
@@ -23,7 +25,8 @@ public class TaskServiceTests : IDisposable
             .Options;
         _context = new AppDbContext(options);
         _telegramMock = new Mock<ITelegramService>();
-        _sut = new TaskService(_context, _telegramMock.Object);
+        _channel = Channel.CreateUnbounded<Notification>();
+        _sut = new TaskService(_context, _telegramMock.Object, _channel);
     }
     
     public void Dispose()
