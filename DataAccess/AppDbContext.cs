@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<TeamUser> TeamUsers => Set<TeamUser>();
     public DbSet<TelegramLinkCode> TelegramLinkCodes => Set<TelegramLinkCode>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<EmailVerification> EmailVerifications => Set<EmailVerification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +61,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(n => n.TaskItem)
             .WithMany()
             .HasForeignKey(n => n.TaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<EmailVerification>()
+            .HasOne(v => v.User)
+            .WithOne(ev=> ev.Verification)
+            .HasForeignKey<EmailVerification>(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

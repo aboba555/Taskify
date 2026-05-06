@@ -11,6 +11,8 @@ public class User
     public string? Password { get; set; }
     public string? GoogleId { get; set; }
     public string? TelegramChatId { get; set; }
+    public bool IsActivated { get; set; }
     
     public List<TeamUser> TeamUsers { get; set; } = new List<TeamUser>();
+    public EmailVerification Verification { get; set; }
 }
