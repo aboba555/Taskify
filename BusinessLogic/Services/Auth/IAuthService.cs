@@ -7,4 +7,6 @@ public interface IAuthService
     public Task Register(RegisterUserDto registerUserDto);
     Task<string> Login(LoginUserDto dto);
     Task<string>GoogleLogin(GoogleUserLoginDto googleUserLoginDto);
+    Task VerifyEmail(VerifyEmailDto dto);
+    Task ResendVerificationEmail(ResendEmailDto dto);
 }

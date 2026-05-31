@@ -9,11 +9,13 @@
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
       <PackageReference Include="FluentAssertions" Version="8.8.0" />
+      <PackageReference Include="FluentEmail.Smtp" Version="3.0.2" />
       <PackageReference Include="FluentMigrator" Version="7.2.0" />
       <PackageReference Include="FluentMigrator.Extensions.Postgres" Version="7.2.0" />
       <PackageReference Include="FluentMigrator.Runner" Version="7.2.0" />
       <PackageReference Include="FluentMigrator.Runner.SqlServer" Version="7.2.0" />
       <PackageReference Include="Google.Apis.Auth" Version="1.73.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
         <PrivateAssets>all</PrivateAssets>
@@ -23,6 +25,7 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
+      <PackageReference Include="System.Threading.RateLimiting" Version="10.0.8" />
       <PackageReference Include="Telegram.Bot" Version="22.8.1" />
     </ItemGroup>
 

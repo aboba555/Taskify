@@ -3,6 +3,7 @@ using BusinessLogic.Services.Auth;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Taskify.Controllers;
 
@@ -11,6 +12,7 @@ namespace Taskify.Controllers;
 public class AuthController(IAuthService authService) : Controller
 {
     [HttpPost("register")]
+    [EnableRateLimiting("AuthRateLimit")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDto user)
     {
         try
@@ -25,6 +27,7 @@ public class AuthController(IAuthService authService) : Controller
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("AuthRateLimit")]
     public async Task<IActionResult> Login([FromBody] LoginUserDto user)
     {
         try
@@ -49,6 +52,36 @@ public class AuthController(IAuthService authService) : Controller
         catch (Exception e)
         {
             return Unauthorized(new {error = e.Message});
+        }
+    }
+    
+    [HttpPost("verify-email")]
+    [EnableRateLimiting("AuthRateLimit")]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailDto dto)
+    {
+        try
+        {
+            await authService.VerifyEmail(dto);
+            return Ok(new { message = "Email successfully verified. You can now login!" });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { error = e.Message });
+        }
+    }
+
+    [HttpPost("resend-email")]
+    [EnableRateLimiting("AuthRateLimit")]
+    public async Task<IActionResult> ResendEmail([FromBody] ResendEmailDto dto)
+    {
+        try
+        {
+            await authService.ResendVerificationEmail(dto);
+            return Ok(new { message = "Verification email sent successfully" });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(new { error = e.Message });
         }
     }
     
